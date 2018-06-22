@@ -79,13 +79,17 @@
 
 
 
-<meta property="og:type" content="website">
-<meta property="og:title" content="XXOO">
-<meta property="og:url" content="http://jmmmm.github.io/index.html">
+<meta name="description" content="###一、环境准备 1、直接docker下载打包好的镜像 (这里默认大家都已经安装了docker)123## https://hub.docker.com/r/openresty/openresty/ 这里可以了解一下dockerfile$ docker search openresty$ docker pull openresty/openresty 2、启动容器(这里用9000代替80端口，避">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Nginx+Lua搭建灰度系统">
+<meta property="og:url" content="http://jmmmm.github.io/2018/06/11/Nginx+Lua搭建灰度系统/index.html">
 <meta property="og:site_name" content="XXOO">
+<meta property="og:description" content="###一、环境准备 1、直接docker下载打包好的镜像 (这里默认大家都已经安装了docker)123## https://hub.docker.com/r/openresty/openresty/ 这里可以了解一下dockerfile$ docker search openresty$ docker pull openresty/openresty 2、启动容器(这里用9000代替80端口，避">
 <meta property="og:locale" content="default">
+<meta property="og:updated_time" content="2018-06-22T07:41:46.885Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="XXOO">
+<meta name="twitter:title" content="Nginx+Lua搭建灰度系统">
+<meta name="twitter:description" content="###一、环境准备 1、直接docker下载打包好的镜像 (这里默认大家都已经安装了docker)123## https://hub.docker.com/r/openresty/openresty/ 这里可以了解一下dockerfile$ docker search openresty$ docker pull openresty/openresty 2、启动容器(这里用9000代替80端口，避">
 
 
 
@@ -115,13 +119,13 @@
 
 
 
-  <link rel="canonical" href="http://jmmmm.github.io/"/>
+  <link rel="canonical" href="http://jmmmm.github.io/2018/06/11/Nginx+Lua搭建灰度系统/"/>
 
 
 
 
 
-  <title>XXOO</title>
+  <title>Nginx+Lua搭建灰度系统 | XXOO</title>
   
 
 
@@ -140,8 +144,7 @@
     
   
 
-  <div class="container sidebar-position-left 
-  page-home">
+  <div class="container sidebar-position-left page-post-detail">
     <div class="headband"></div>
 
     <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
@@ -264,164 +267,9 @@
         <div class="content-wrap">
           <div id="content" class="content">
             
-  <section id="posts" class="posts-expand">
+
+  <div id="posts" class="posts-expand">
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://jmmmm.github.io/blog/2018/06/11/Apollo搭建/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="WJM">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/blog/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="XXOO">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/blog/2018/06/11/Apollo搭建/" itemprop="url">Apollo搭建</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2018-06-11T14:09:15+08:00">
-                2018-06-11
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">In</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/blog/categories/Apollo/" itemprop="url" rel="index">
-                    <span itemprop="name">Apollo</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-             <span id="/blog/2018/06/11/Apollo搭建/" class="leancloud_visitors" data-flag-title="Apollo搭建">
-               <span class="post-meta-divider">|</span>
-               <span class="post-meta-item-icon">
-                 <i class="fa fa-eye"></i>
-               </span>
-               
-                 <span class="post-meta-item-text">Visitors&#58;</span>
-               
-                 <span class="leancloud-visitors-count"></span>
-             </span>
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p>  Apollo（阿波罗）是携程框架部门研发的配置管理平台，能够集中化管理应用不同环境、不同集群的配置，配置修改后能够实时推送到应用端。</p>
-<p>###环境<br>  部署apollo需要用到java和mysql<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">$ java -version</span><br><span class="line"></span><br><span class="line">java version <span class="string">"1.8.0_121"</span></span><br><span class="line">Java(TM) SE Runtime Environment (build 1.8.0_121-b13)</span><br><span class="line">Java HotSpot(TM) 64-Bit Server VM (build 25.121-b13, mixed mode)</span><br></pre></td></tr></table></figure></p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">SHOW VARIABLES WHERE Variable_name = <span class="string">'version'</span>;</span><br><span class="line">+---------------+------------+</span><br><span class="line">| Variable_name | Value      |</span><br><span class="line">+---------------+------------+</span><br><span class="line">| version       | 5.6.26-log |</span><br><span class="line">+---------------+------------+</span><br></pre></td></tr></table></figure>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git <span class="built_in">clone</span> https://github.com/nobodyiam/apollo-build-scripts</span><br></pre></td></tr></table></figure>
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
 
   
 
@@ -451,9 +299,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/blog/2018/06/11/Nginx+Lua搭建灰度系统/" itemprop="url">Nginx+Lua搭建灰度系统</a></h1>
+          <h1 class="post-title" itemprop="name headline">Nginx+Lua搭建灰度系统</h1>
         
 
         <div class="post-meta">
@@ -518,6 +364,11 @@
           
 
           
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-file-o"></i> 浏览
+            <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>次
+            </span>
+          
 
           
 
@@ -536,9 +387,7 @@
       
 
       
-        
-          
-            <p>###一、环境准备</p>
+        <p>###一、环境准备</p>
 <h5 id="1、直接docker下载打包好的镜像-这里默认大家都已经安装了docker"><a href="#1、直接docker下载打包好的镜像-这里默认大家都已经安装了docker" class="headerlink" title="1、直接docker下载打包好的镜像 (这里默认大家都已经安装了docker)"></a>1、直接docker下载打包好的镜像 (这里默认大家都已经安装了docker)</h5><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">## https://hub.docker.com/r/openresty/openresty/ 这里可以了解一下dockerfile</span><br><span class="line">$ docker search openresty</span><br><span class="line">$ docker pull openresty/openresty</span><br></pre></td></tr></table></figure>
 <h5 id="2、启动容器-这里用9000代替80端口，避免冲突，9000端口可以随意改"><a href="#2、启动容器-这里用9000代替80端口，避免冲突，9000端口可以随意改" class="headerlink" title="2、启动容器(这里用9000代替80端口，避免冲突，9000端口可以随意改)"></a>2、启动容器(这里用9000代替80端口，避免冲突，9000端口可以随意改)</h5><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">$ docker run -it --name openresty -d -p9000:80 openresty/openresty</span><br><span class="line">## 容器外输入（localhost换成对应的ip 或者直接浏览器访问 ）</span><br><span class="line">$ curl localhost:9000</span><br><span class="line">## 会看到 Welcome to OpenResty!</span><br><span class="line">## 那就是成功了 ：）</span><br></pre></td></tr></table></figure>
 <h5 id="3、现在我们进入容器进行灰度系统搭建"><a href="#3、现在我们进入容器进行灰度系统搭建" class="headerlink" title="3、现在我们进入容器进行灰度系统搭建"></a>3、现在我们进入容器进行灰度系统搭建</h5><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">## 命令行输入</span><br><span class="line">$ docker exec -it openresty sh</span><br><span class="line">$ vi /usr/local/openresty/nginx/conf/nginx.conf</span><br></pre></td></tr></table></figure>
@@ -557,8 +406,6 @@
 <h6 id="demo2，demo3先看看官方文档怎么写："><a href="#demo2，demo3先看看官方文档怎么写：" class="headerlink" title="demo2，demo3先看看官方文档怎么写："></a>demo2，demo3先看看官方文档怎么写：</h6><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">This module can be served as a non-blocking redis2 client for lua-nginx-module</span><br><span class="line">(but nowadays it is recommended to use the lua-resty-redis library instead, </span><br><span class="line">which is much simpler to use and more efficient most of the time). </span><br><span class="line">##大概意思就是lua对redis的操作更推荐使用lua-resty-redis模块 但是这里只是为了方便演示，</span><br><span class="line">##使用demo3的写法</span><br></pre></td></tr></table></figure>
 <h3 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h3><p>Openresty最佳实践 <a href="https://moonbingbing.gitbooks.io/openresty-best-practices/content/" target="_blank" rel="noopener">https://moonbingbing.gitbooks.io/openresty-best-practices/content/</a> <br><br>跟我学OpenResty(Nginx+Lua)<a href="http://jinnianshilongnian.iteye.com/blog/2190344" target="_blank" rel="noopener">http://jinnianshilongnian.iteye.com/blog/2190344</a> <br><br>官方文档 <a href="http://openresty.org/cn/" target="_blank" rel="noopener">http://openresty.org/cn/</a></p>
 
-          
-        
       
     </div>
     
@@ -575,151 +422,32 @@
       
 
       
-
-      
-
       
       
-        <div class="post-eof"></div>
+
       
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://jmmmm.github.io/blog/2018/06/08/hello-world/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="WJM">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/blog/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="XXOO">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/blog/2018/06/08/hello-world/" itemprop="url">Hello World</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
             
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2018-06-08T15:35:52+08:00">
-                2018-06-08
-              </time>
+              <a href="/blog/2018/06/08/hello-world/" rel="next" title="Hello World">
+                <i class="fa fa-chevron-left"></i> Hello World
+              </a>
             
+          </div>
 
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
             
-
+              <a href="/blog/2018/06/11/Apollo搭建/" rel="prev" title="Apollo搭建">
+                Apollo搭建 <i class="fa fa-chevron-right"></i>
+              </a>
             
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-             <span id="/blog/2018/06/08/hello-world/" class="leancloud_visitors" data-flag-title="Hello World">
-               <span class="post-meta-divider">|</span>
-               <span class="post-meta-item-icon">
-                 <i class="fa fa-eye"></i>
-               </span>
-               
-                 <span class="post-meta-item-text">Visitors&#58;</span>
-               
-                 <span class="leancloud-visitors-count"></span>
-             </span>
-          
-
-          
-
-          
-
-          
-
+          </div>
         </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
       
 
       
-        
-          
-            <p>Welcome to <a href="https://hexo.io/" target="_blank" rel="noopener">Hexo</a>! This is your very first post. Check <a href="https://hexo.io/docs/" target="_blank" rel="noopener">documentation</a> for more info. If you get any problems when using Hexo, you can find the answer in <a href="https://hexo.io/docs/troubleshooting.html" target="_blank" rel="noopener">troubleshooting</a> or you can ask me on <a href="https://github.com/hexojs/hexo/issues" target="_blank" rel="noopener">GitHub</a>.</p>
-<h2 id="Quick-Start"><a href="#Quick-Start" class="headerlink" title="Quick Start"></a>Quick Start</h2><h3 id="Create-a-new-post"><a href="#Create-a-new-post" class="headerlink" title="Create a new post"></a>Create a new post</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo new <span class="string">"My New Post"</span></span><br></pre></td></tr></table></figure>
-<p>More info: <a href="https://hexo.io/docs/writing.html" target="_blank" rel="noopener">Writing</a></p>
-<h3 id="Run-server"><a href="#Run-server" class="headerlink" title="Run server"></a>Run server</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo server</span><br></pre></td></tr></table></figure>
-<p>More info: <a href="https://hexo.io/docs/server.html" target="_blank" rel="noopener">Server</a></p>
-<h3 id="Generate-static-files"><a href="#Generate-static-files" class="headerlink" title="Generate static files"></a>Generate static files</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo generate</span><br></pre></td></tr></table></figure>
-<p>More info: <a href="https://hexo.io/docs/generating.html" target="_blank" rel="noopener">Generating</a></p>
-<h3 id="Deploy-to-remote-sites"><a href="#Deploy-to-remote-sites" class="headerlink" title="Deploy to remote sites"></a>Deploy to remote sites</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo deploy</span><br></pre></td></tr></table></figure>
-<p>More info: <a href="https://hexo.io/docs/deployment.html" target="_blank" rel="noopener">Deployment</a></p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
       
     </footer>
   </div>
@@ -729,10 +457,11 @@
   </article>
 
 
-    
-  </section>
 
-  
+    <div class="post-spread">
+      
+    </div>
+  </div>
 
 
           </div>
@@ -740,6 +469,10 @@
 
 
           
+
+  
+
+
 
         </div>
         
@@ -760,8 +493,17 @@
       
 
       
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
 
-      <section class="site-overview-wrap sidebar-panel sidebar-panel-active">
+      <section class="site-overview-wrap sidebar-panel">
         <div class="site-overview">
           <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
             
@@ -812,6 +554,22 @@
         </div>
       </section>
 
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-5"><a class="nav-link" href="#1、直接docker下载打包好的镜像-这里默认大家都已经安装了docker"><span class="nav-number">1.</span> <span class="nav-text">1、直接docker下载打包好的镜像 (这里默认大家都已经安装了docker)</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#2、启动容器-这里用9000代替80端口，避免冲突，9000端口可以随意改"><span class="nav-number">2.</span> <span class="nav-text">2、启动容器(这里用9000代替80端口，避免冲突，9000端口可以随意改)</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#3、现在我们进入容器进行灰度系统搭建"><span class="nav-number">3.</span> <span class="nav-text">3、现在我们进入容器进行灰度系统搭建</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#恭喜你基础的环境已经搭建好了！"><span class="nav-number">4.</span> <span class="nav-text">恭喜你基础的环境已经搭建好了！</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#二、连上的redis"><span class="nav-number"></span> <span class="nav-text">二、连上的redis</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#1、在lua-conf-中增加配置如下："><span class="nav-number">1.</span> <span class="nav-text">1、在lua.conf 中增加配置如下：</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#现在看看demo2"><span class="nav-number">2.</span> <span class="nav-text">现在看看demo2</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#demo3"><span class="nav-number">3.</span> <span class="nav-text">demo3</span></a><ol class="nav-child"><li class="nav-item nav-level-6"><a class="nav-link" href="#demo2，demo3先看看官方文档怎么写："><span class="nav-number">3.1.</span> <span class="nav-text">demo2，demo3先看看官方文档怎么写：</span></a></li></ol></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#参考文献"><span class="nav-number"></span> <span class="nav-text">参考文献</span></a></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
       
 
       
@@ -967,6 +725,10 @@
   
 
   
+  <script type="text/javascript" src="/blog/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/blog/js/src/post-details.js?v=5.1.4"></script>
+
+
 
   
 
