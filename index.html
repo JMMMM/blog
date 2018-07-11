@@ -431,6 +431,329 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://jmmmm.github.io/blog/2018/07/09/Nginx+Lua搭建灰度系统/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="WJM">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/blog/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="^o^ XX00 :)">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/blog/2018/07/09/Nginx+Lua搭建灰度系统/" itemprop="url">Nginx+Lua搭建灰度系统</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2018-07-09T14:09:15+08:00">
+                2018-07-09
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/Nginx-Lua研究与学习/" itemprop="url" rel="index">
+                    <span itemprop="name">Nginx+Lua研究与学习</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+             <span id="/blog/2018/07/09/Nginx+Lua搭建灰度系统/" class="leancloud_visitors" data-flag-title="Nginx+Lua搭建灰度系统">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="post-meta-item-text">Visitors&#58;</span>
+               
+                 <span class="leancloud-visitors-count"></span>
+             </span>
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>###一、环境准备</p>
+<h5 id="1、直接docker下载打包好的镜像-这里默认大家都已经安装了docker"><a href="#1、直接docker下载打包好的镜像-这里默认大家都已经安装了docker" class="headerlink" title="1、直接docker下载打包好的镜像 (这里默认大家都已经安装了docker)"></a>1、直接docker下载打包好的镜像 (这里默认大家都已经安装了docker)</h5><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">## https://hub.docker.com/r/openresty/openresty/ 这里可以了解一下dockerfile</span><br><span class="line">$ docker search openresty</span><br><span class="line">$ docker pull openresty/openresty</span><br></pre></td></tr></table></figure>
+<h5 id="2、启动容器-这里用9000代替80端口，避免冲突，9000端口可以随意改"><a href="#2、启动容器-这里用9000代替80端口，避免冲突，9000端口可以随意改" class="headerlink" title="2、启动容器(这里用9000代替80端口，避免冲突，9000端口可以随意改)"></a>2、启动容器(这里用9000代替80端口，避免冲突，9000端口可以随意改)</h5><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">$ docker run -it --name openresty -d -p9000:80 openresty/openresty</span><br><span class="line">## 容器外输入（localhost换成对应的ip 或者直接浏览器访问 ）</span><br><span class="line">$ curl localhost:9000</span><br><span class="line">## 会看到 Welcome to OpenResty!</span><br><span class="line">## 那就是成功了 ：）</span><br></pre></td></tr></table></figure>
+<h5 id="3、现在我们进入容器进行灰度系统搭建"><a href="#3、现在我们进入容器进行灰度系统搭建" class="headerlink" title="3、现在我们进入容器进行灰度系统搭建"></a>3、现在我们进入容器进行灰度系统搭建</h5><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">## 命令行输入</span><br><span class="line">$ docker exec -it openresty sh</span><br><span class="line">$ vi /usr/local/openresty/nginx/conf/nginx.conf</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">## vi内操作</span><br><span class="line">##在include mime.types;下面增加以下配置</span><br><span class="line">##lua模块路径，其中”;;”表示默认搜索路径</span><br><span class="line">lua_package_path &quot;/usr/local/openresty/lualib/?.lua;;&quot;; #lua模块                  </span><br><span class="line">lua_package_cpath &quot;/usr/local/openresty/lualib/?.so;;&quot;; #c模块                  </span><br><span class="line">include /usr/local/app/conf/lua.conf; #引用自定义的配置文件</span><br><span class="line">## 最后把那堆server删掉</span><br><span class="line">## wq 保存退出</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">## 命令行输入</span><br><span class="line">$ mkdir -p /usr/local/app/conf/</span><br><span class="line">$ cd /usr/local/app/conf/</span><br><span class="line">$ vi lua.conf</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">## vi内添加</span><br><span class="line">server&#123;</span><br><span class="line"></span><br><span class="line">  listen 80;</span><br><span class="line">  </span><br><span class="line">  location /hello_world&#123;</span><br><span class="line">      default_type &apos;text/html&apos;;</span><br><span class="line">      content_by_lua &apos;ngx.say(&quot;hello world :)&quot;)&apos;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line">## wq</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">$ /usr/local/openresty/bin/openresty -c /usr/local/openresty/nginx/conf/nginx.conf -s reload</span><br><span class="line">## 为了简便 我们进行如下操作：</span><br><span class="line">$ mkdir /usr/local/app/bin/</span><br><span class="line">$ vi /usr/local/app/bin/reload.sh</span><br><span class="line">## 内容大概是这样的</span><br><span class="line">#!/bin/bash</span><br><span class="line">/usr/local/openresty/bin/openresty -c /usr/local/openresty/nginx/conf/nginx.conf -s reload</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">##容器外 或 浏览器输入</span><br><span class="line">$ curl http://localhost:9000/hello_world</span><br><span class="line">### hello world :)</span><br></pre></td></tr></table></figure>
+<h5 id="恭喜你基础的环境已经搭建好了！"><a href="#恭喜你基础的环境已经搭建好了！" class="headerlink" title="恭喜你基础的环境已经搭建好了！"></a>恭喜你基础的环境已经搭建好了！</h5><h3 id="二、连上的redis"><a href="#二、连上的redis" class="headerlink" title="二、连上的redis"></a>二、连上的redis</h3><h5 id="1、在lua-conf-中增加配置如下："><a href="#1、在lua-conf-中增加配置如下：" class="headerlink" title="1、在lua.conf 中增加配置如下："></a>1、在lua.conf 中增加配置如下：</h5><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">location /demo1&#123;</span><br><span class="line">  default_type &apos;text/html&apos;;</span><br><span class="line">  content_by_lua_file /usr/local/app/lua/demo1.lua;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ mkdir /usr/local/app/lua/</span><br><span class="line">$ vi /usr/local/app/lua/demo1.lua</span><br></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">local function <span class="title">close_redis</span><span class="params">(red)</span>  </span></span><br><span class="line"><span class="function">    <span class="keyword">if</span> not red then  </span></span><br><span class="line"><span class="function">        return  </span></span><br><span class="line"><span class="function">    end  </span></span><br><span class="line"><span class="function">    --释放连接<span class="params">(连接池实现)</span>  </span></span><br><span class="line"><span class="function">    local pool_max_idle_time </span>= <span class="number">10000</span> --毫秒  </span><br><span class="line">    local pool_size = <span class="number">100</span> --连接池大小  </span><br><span class="line">    local ok, err = red:set_keepalive(pool_max_idle_time, pool_size)  </span><br><span class="line">    <span class="keyword">if</span> not ok then  </span><br><span class="line">        ngx.say(<span class="string">"set keepalive error : "</span>, err)  </span><br><span class="line">    end  </span><br><span class="line">end  </span><br><span class="line">  </span><br><span class="line">local redis = require(<span class="string">"resty.redis"</span>)  </span><br><span class="line">  </span><br><span class="line">-- 创建实例  </span><br><span class="line">local red = redis:<span class="keyword">new</span>()  </span><br><span class="line">-- 设置超时（毫秒）  </span><br><span class="line">red:set_timeout(<span class="number">1000</span>)  </span><br><span class="line">-- 建立连接  </span><br><span class="line">local ip = <span class="string">"192.168.4.22"</span>  </span><br><span class="line">local port = <span class="number">6379</span>  </span><br><span class="line">local ok, err = red:connect(ip, port)  </span><br><span class="line"><span class="keyword">if</span> not ok then  </span><br><span class="line">    ngx.say(<span class="string">"connect to redis error : "</span>, err)  </span><br><span class="line">    <span class="keyword">return</span> close_redis(red)  </span><br><span class="line">end  </span><br><span class="line">-- 调用API进行处理  </span><br><span class="line">ok, err = red:set(<span class="string">"msg"</span>, <span class="string">"hello world"</span>)  </span><br><span class="line"><span class="keyword">if</span> not ok then  </span><br><span class="line">    ngx.say(<span class="string">"set msg error : "</span>, err)  </span><br><span class="line">    <span class="keyword">return</span> close_redis(red)  </span><br><span class="line">end  </span><br><span class="line">  </span><br><span class="line">-- 调用API获取数据  </span><br><span class="line">local resp, err = red:get(<span class="string">"msg"</span>)  </span><br><span class="line"><span class="keyword">if</span> not resp then  </span><br><span class="line">    ngx.say(<span class="string">"get msg error : "</span>, err)  </span><br><span class="line">    <span class="keyword">return</span> close_redis(red)  </span><br><span class="line">end  </span><br><span class="line">-- 得到的数据为空处理  </span><br><span class="line"><span class="keyword">if</span> resp == ngx.<span class="keyword">null</span> then  </span><br><span class="line">    resp = <span class="string">''</span>  --比如默认值  </span><br><span class="line">end  </span><br><span class="line">ngx.say(<span class="string">"msg : "</span>, resp)  </span><br><span class="line">  </span><br><span class="line">close_redis(red)</span><br></pre></td></tr></table></figure>
+<h5 id="现在看看demo2"><a href="#现在看看demo2" class="headerlink" title="现在看看demo2"></a>现在看看demo2</h5><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">local res,err = ngx.location.capture(<span class="string">"/redis/hget"</span>,&#123;args=&#123;key=<span class="string">"gray"</span>,mKey=<span class="string">"16218"</span>&#125;&#125;)</span><br><span class="line">local parser = require <span class="string">"redis.parser"</span></span><br><span class="line">local server,type = parser.parse_reply(res.body)</span><br><span class="line"><span class="keyword">if</span> not server then</span><br><span class="line">    server=<span class="string">"default"</span></span><br><span class="line">end</span><br><span class="line">ngx.say(<span class="string">"server is :"</span> .. server)</span><br></pre></td></tr></table></figure>
+<h5 id="demo3"><a href="#demo3" class="headerlink" title="demo3"></a>demo3</h5><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">local res,err = ngx.location.capture(<span class="string">"/redis/hget"</span>,&#123;args=&#123;key=<span class="string">"gray"</span>,mKey=<span class="string">"16218"</span>&#125;&#125;)</span><br><span class="line">local parser = require <span class="string">"redis.parser"</span></span><br><span class="line">local server,type = parser.parse_reply(res.body)</span><br><span class="line"><span class="keyword">if</span> not server then</span><br><span class="line">    server=<span class="string">"default"</span></span><br><span class="line">end</span><br><span class="line">ngx.target = server</span><br><span class="line"><span class="keyword">return</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">## /usr/local/openresty/nginx/conf/nginx.conf</span><br><span class="line">## 在http下添加</span><br><span class="line">upstream redis_server&#123;</span><br><span class="line">  server 192.168.4.22:6379;</span><br><span class="line">  keepalive 1024;</span><br><span class="line">&#125;</span><br><span class="line">##并且在woker_processes 下面增加日志</span><br><span class="line">error_log /usr/local/logs/error.log</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">## /usr/local/openresty/nginx/conf/nginx.conf</span><br><span class="line">  location /demo2&#123;</span><br><span class="line">    default_type &apos;text/html&apos;;</span><br><span class="line">    content_by_lua_file /usr/local/app/lua/demo2.lua;</span><br><span class="line">  &#125;</span><br><span class="line">  </span><br><span class="line">  location /demo3&#123;</span><br><span class="line">    set $target &apos;&apos;;</span><br><span class="line">    access_by_lua_file /usr/local/app/lua/demo3.lua;</span><br><span class="line">    proxy_pass http://$target;</span><br><span class="line">  &#125;</span><br><span class="line">  </span><br><span class="line">  location /redis/hget&#123;</span><br><span class="line">    internal; #只允许内部调用</span><br><span class="line">    redis2_query hget $arg_key $arg_mKey;</span><br><span class="line">    redis2_pass redis_server;</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure>
+<h6 id="demo2，demo3先看看官方文档怎么写："><a href="#demo2，demo3先看看官方文档怎么写：" class="headerlink" title="demo2，demo3先看看官方文档怎么写："></a>demo2，demo3先看看官方文档怎么写：</h6><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">This module can be served as a non-blocking redis2 client for lua-nginx-module</span><br><span class="line">(but nowadays it is recommended to use the lua-resty-redis library instead, </span><br><span class="line">which is much simpler to use and more efficient most of the time). </span><br><span class="line">##大概意思就是lua对redis的操作更推荐使用lua-resty-redis模块（因为更简单，更高效）</span><br><span class="line">##但是这里只是为了方便演示，使用demo3的写法</span><br></pre></td></tr></table></figure>
+<h6 id="github地址"><a href="#github地址" class="headerlink" title="github地址"></a>github地址</h6><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git clone https://github.com/JMMMM/nginxLua.git</span><br></pre></td></tr></table></figure>
+<h3 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h3><p>Openresty最佳实践 <a href="https://moonbingbing.gitbooks.io/openresty-best-practices/content/" target="_blank" rel="noopener">https://moonbingbing.gitbooks.io/openresty-best-practices/content/</a> <br><br>跟我学OpenResty(Nginx+Lua)<a href="http://jinnianshilongnian.iteye.com/blog/2190344" target="_blank" rel="noopener">http://jinnianshilongnian.iteye.com/blog/2190344</a> <br><br>官方文档 <a href="http://openresty.org/cn/" target="_blank" rel="noopener">http://openresty.org/cn/</a></p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://jmmmm.github.io/blog/2018/07/09/Nginx+Lua对redis二次封装/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="WJM">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/blog/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="^o^ XX00 :)">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/blog/2018/07/09/Nginx+Lua对redis二次封装/" itemprop="url">Nginx+Lua对redis二次封装</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2018-07-09T14:09:15+08:00">
+                2018-07-09
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/Nginx-Lua研究与学习/" itemprop="url" rel="index">
+                    <span itemprop="name">Nginx+Lua研究与学习</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+             <span id="/blog/2018/07/09/Nginx+Lua对redis二次封装/" class="leancloud_visitors" data-flag-title="Nginx+Lua对redis二次封装">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="post-meta-item-text">Visitors&#58;</span>
+               
+                 <span class="leancloud-visitors-count"></span>
+             </span>
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h3 id="一、前提"><a href="#一、前提" class="headerlink" title="一、前提"></a>一、前提</h3><h5 id="由于官方还是更推荐我们使用lua-resty-redis模块进行开发，但是开发中我们不能每次调用都写那堆东西，于是尝试写一份redis-pool-utilsredis-iresty-lua"><a href="#由于官方还是更推荐我们使用lua-resty-redis模块进行开发，但是开发中我们不能每次调用都写那堆东西，于是尝试写一份redis-pool-utilsredis-iresty-lua" class="headerlink" title="由于官方还是更推荐我们使用lua-resty-redis模块进行开发，但是开发中我们不能每次调用都写那堆东西，于是尝试写一份redis pool utilsredis_iresty.lua"></a>由于官方还是更推荐我们使用lua-resty-redis模块进行开发，但是开发中我们不能每次调用都写那堆东西，于是尝试写一份redis pool utils<br>redis_iresty.lua</h5><figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">local</span> redis = <span class="built_in">require</span> <span class="string">"resty.redis"</span></span><br><span class="line"><span class="keyword">local</span> redis_pool = &#123;&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">redis_pool:get_connect</span><span class="params">()</span></span></span><br><span class="line">    <span class="keyword">local</span> client,err = redis:new()</span><br><span class="line">    <span class="keyword">if</span> <span class="keyword">not</span> client <span class="keyword">then</span></span><br><span class="line">        <span class="keyword">return</span> <span class="literal">false</span>,<span class="string">"redis.socket_failed:"</span> .. (err <span class="keyword">or</span> <span class="string">"nil"</span>)</span><br><span class="line">    <span class="keyword">end</span></span><br><span class="line">    client:set_timeout(<span class="number">5000</span>)</span><br><span class="line">    <span class="keyword">local</span> result,msg = client:connect(<span class="string">"192.168.4.89"</span>,<span class="string">"6379"</span>)</span><br><span class="line">    <span class="keyword">if</span> <span class="keyword">not</span> result <span class="keyword">then</span></span><br><span class="line">        <span class="keyword">return</span> <span class="literal">false</span>,msg</span><br><span class="line">    <span class="keyword">end</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="literal">true</span>,client</span><br><span class="line"><span class="keyword">end</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">redis_pool:close</span><span class="params">(client)</span></span></span><br><span class="line">    <span class="keyword">if</span> <span class="keyword">not</span> client <span class="keyword">then</span></span><br><span class="line">        <span class="keyword">return</span></span><br><span class="line">    <span class="keyword">end</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">local</span> pool_max_idle_time = <span class="number">1000</span></span><br><span class="line">    <span class="keyword">local</span> pool_size =<span class="number">10</span></span><br><span class="line">    <span class="keyword">local</span> ok,err = client.set_keepalive(pool_max_idle_time,pool_size)</span><br><span class="line">    <span class="keyword">if</span> <span class="keyword">not</span> ok <span class="keyword">then</span></span><br><span class="line">        ngx.say(<span class="string">"set keepalive error:"</span>,err)</span><br><span class="line">     <span class="keyword">end</span></span><br><span class="line"><span class="keyword">end</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">return</span> redis_pool</span><br></pre></td></tr></table></figure>
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://jmmmm.github.io/blog/2018/06/11/Apollo搭建/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -539,329 +862,6 @@
 <p>###环境<br>  部署apollo需要用到java和mysql<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">$ java -version</span><br><span class="line"></span><br><span class="line">java version <span class="string">"1.8.0_121"</span></span><br><span class="line">Java(TM) SE Runtime Environment (build 1.8.0_121-b13)</span><br><span class="line">Java HotSpot(TM) 64-Bit Server VM (build 25.121-b13, mixed mode)</span><br></pre></td></tr></table></figure></p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">SHOW VARIABLES WHERE Variable_name = <span class="string">'version'</span>;</span><br><span class="line">+---------------+------------+</span><br><span class="line">| Variable_name | Value      |</span><br><span class="line">+---------------+------------+</span><br><span class="line">| version       | 5.6.26-log |</span><br><span class="line">+---------------+------------+</span><br></pre></td></tr></table></figure>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git <span class="built_in">clone</span> https://github.com/nobodyiam/apollo-build-scripts</span><br></pre></td></tr></table></figure>
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://jmmmm.github.io/blog/2018/06/11/Nginx+Lua搭建灰度系统/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="WJM">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/blog/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="^o^ XX00 :)">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/blog/2018/06/11/Nginx+Lua搭建灰度系统/" itemprop="url">Nginx+Lua搭建灰度系统</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2018-06-11T14:09:15+08:00">
-                2018-06-11
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">In</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/blog/categories/Nginx-Lua研究与学习/" itemprop="url" rel="index">
-                    <span itemprop="name">Nginx+Lua研究与学习</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-             <span id="/blog/2018/06/11/Nginx+Lua搭建灰度系统/" class="leancloud_visitors" data-flag-title="Nginx+Lua搭建灰度系统">
-               <span class="post-meta-divider">|</span>
-               <span class="post-meta-item-icon">
-                 <i class="fa fa-eye"></i>
-               </span>
-               
-                 <span class="post-meta-item-text">Visitors&#58;</span>
-               
-                 <span class="leancloud-visitors-count"></span>
-             </span>
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p>###一、环境准备</p>
-<h5 id="1、直接docker下载打包好的镜像-这里默认大家都已经安装了docker"><a href="#1、直接docker下载打包好的镜像-这里默认大家都已经安装了docker" class="headerlink" title="1、直接docker下载打包好的镜像 (这里默认大家都已经安装了docker)"></a>1、直接docker下载打包好的镜像 (这里默认大家都已经安装了docker)</h5><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">## https://hub.docker.com/r/openresty/openresty/ 这里可以了解一下dockerfile</span><br><span class="line">$ docker search openresty</span><br><span class="line">$ docker pull openresty/openresty</span><br></pre></td></tr></table></figure>
-<h5 id="2、启动容器-这里用9000代替80端口，避免冲突，9000端口可以随意改"><a href="#2、启动容器-这里用9000代替80端口，避免冲突，9000端口可以随意改" class="headerlink" title="2、启动容器(这里用9000代替80端口，避免冲突，9000端口可以随意改)"></a>2、启动容器(这里用9000代替80端口，避免冲突，9000端口可以随意改)</h5><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">$ docker run -it --name openresty -d -p9000:80 openresty/openresty</span><br><span class="line">## 容器外输入（localhost换成对应的ip 或者直接浏览器访问 ）</span><br><span class="line">$ curl localhost:9000</span><br><span class="line">## 会看到 Welcome to OpenResty!</span><br><span class="line">## 那就是成功了 ：）</span><br></pre></td></tr></table></figure>
-<h5 id="3、现在我们进入容器进行灰度系统搭建"><a href="#3、现在我们进入容器进行灰度系统搭建" class="headerlink" title="3、现在我们进入容器进行灰度系统搭建"></a>3、现在我们进入容器进行灰度系统搭建</h5><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">## 命令行输入</span><br><span class="line">$ docker exec -it openresty sh</span><br><span class="line">$ vi /usr/local/openresty/nginx/conf/nginx.conf</span><br></pre></td></tr></table></figure>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">## vi内操作</span><br><span class="line">##在include mime.types;下面增加以下配置</span><br><span class="line">##lua模块路径，其中”;;”表示默认搜索路径</span><br><span class="line">lua_package_path &quot;/usr/local/openresty/lualib/?.lua;;&quot;; #lua模块                  </span><br><span class="line">lua_package_cpath &quot;/usr/local/openresty/lualib/?.so;;&quot;; #c模块                  </span><br><span class="line">include /usr/local/app/conf/lua.conf; #引用自定义的配置文件</span><br><span class="line">## 最后把那堆server删掉</span><br><span class="line">## wq 保存退出</span><br></pre></td></tr></table></figure>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">## 命令行输入</span><br><span class="line">$ mkdir -p /usr/local/app/conf/</span><br><span class="line">$ cd /usr/local/app/conf/</span><br><span class="line">$ vi lua.conf</span><br></pre></td></tr></table></figure>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">## vi内添加</span><br><span class="line">server&#123;</span><br><span class="line"></span><br><span class="line">  listen 80;</span><br><span class="line">  </span><br><span class="line">  location /hello_world&#123;</span><br><span class="line">      default_type &apos;text/html&apos;;</span><br><span class="line">      content_by_lua &apos;ngx.say(&quot;hello world :)&quot;)&apos;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line">## wq</span><br></pre></td></tr></table></figure>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">$ /usr/local/openresty/bin/openresty -c /usr/local/openresty/nginx/conf/nginx.conf -s reload</span><br><span class="line">## 为了简便 我们进行如下操作：</span><br><span class="line">$ mkdir /usr/local/app/bin/</span><br><span class="line">$ vi /usr/local/app/bin/reload.sh</span><br><span class="line">## 内容大概是这样的</span><br><span class="line">#!/bin/bash</span><br><span class="line">/usr/local/openresty/bin/openresty -c /usr/local/openresty/nginx/conf/nginx.conf -s reload</span><br></pre></td></tr></table></figure>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">##容器外 或 浏览器输入</span><br><span class="line">$ curl http://localhost:9000/hello_world</span><br><span class="line">### hello world :)</span><br></pre></td></tr></table></figure>
-<h5 id="恭喜你基础的环境已经搭建好了！"><a href="#恭喜你基础的环境已经搭建好了！" class="headerlink" title="恭喜你基础的环境已经搭建好了！"></a>恭喜你基础的环境已经搭建好了！</h5><h3 id="二、连上的redis"><a href="#二、连上的redis" class="headerlink" title="二、连上的redis"></a>二、连上的redis</h3><h5 id="1、在lua-conf-中增加配置如下："><a href="#1、在lua-conf-中增加配置如下：" class="headerlink" title="1、在lua.conf 中增加配置如下："></a>1、在lua.conf 中增加配置如下：</h5><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">location /demo1&#123;</span><br><span class="line">  default_type &apos;text/html&apos;;</span><br><span class="line">  content_by_lua_file /usr/local/app/lua/demo1.lua;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ mkdir /usr/local/app/lua/</span><br><span class="line">$ vi /usr/local/app/lua/demo1.lua</span><br></pre></td></tr></table></figure>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">local function <span class="title">close_redis</span><span class="params">(red)</span>  </span></span><br><span class="line"><span class="function">    <span class="keyword">if</span> not red then  </span></span><br><span class="line"><span class="function">        return  </span></span><br><span class="line"><span class="function">    end  </span></span><br><span class="line"><span class="function">    --释放连接<span class="params">(连接池实现)</span>  </span></span><br><span class="line"><span class="function">    local pool_max_idle_time </span>= <span class="number">10000</span> --毫秒  </span><br><span class="line">    local pool_size = <span class="number">100</span> --连接池大小  </span><br><span class="line">    local ok, err = red:set_keepalive(pool_max_idle_time, pool_size)  </span><br><span class="line">    <span class="keyword">if</span> not ok then  </span><br><span class="line">        ngx.say(<span class="string">"set keepalive error : "</span>, err)  </span><br><span class="line">    end  </span><br><span class="line">end  </span><br><span class="line">  </span><br><span class="line">local redis = require(<span class="string">"resty.redis"</span>)  </span><br><span class="line">  </span><br><span class="line">-- 创建实例  </span><br><span class="line">local red = redis:<span class="keyword">new</span>()  </span><br><span class="line">-- 设置超时（毫秒）  </span><br><span class="line">red:set_timeout(<span class="number">1000</span>)  </span><br><span class="line">-- 建立连接  </span><br><span class="line">local ip = <span class="string">"192.168.4.22"</span>  </span><br><span class="line">local port = <span class="number">6379</span>  </span><br><span class="line">local ok, err = red:connect(ip, port)  </span><br><span class="line"><span class="keyword">if</span> not ok then  </span><br><span class="line">    ngx.say(<span class="string">"connect to redis error : "</span>, err)  </span><br><span class="line">    <span class="keyword">return</span> close_redis(red)  </span><br><span class="line">end  </span><br><span class="line">-- 调用API进行处理  </span><br><span class="line">ok, err = red:set(<span class="string">"msg"</span>, <span class="string">"hello world"</span>)  </span><br><span class="line"><span class="keyword">if</span> not ok then  </span><br><span class="line">    ngx.say(<span class="string">"set msg error : "</span>, err)  </span><br><span class="line">    <span class="keyword">return</span> close_redis(red)  </span><br><span class="line">end  </span><br><span class="line">  </span><br><span class="line">-- 调用API获取数据  </span><br><span class="line">local resp, err = red:get(<span class="string">"msg"</span>)  </span><br><span class="line"><span class="keyword">if</span> not resp then  </span><br><span class="line">    ngx.say(<span class="string">"get msg error : "</span>, err)  </span><br><span class="line">    <span class="keyword">return</span> close_redis(red)  </span><br><span class="line">end  </span><br><span class="line">-- 得到的数据为空处理  </span><br><span class="line"><span class="keyword">if</span> resp == ngx.<span class="keyword">null</span> then  </span><br><span class="line">    resp = <span class="string">''</span>  --比如默认值  </span><br><span class="line">end  </span><br><span class="line">ngx.say(<span class="string">"msg : "</span>, resp)  </span><br><span class="line">  </span><br><span class="line">close_redis(red)</span><br></pre></td></tr></table></figure>
-<h5 id="现在看看demo2"><a href="#现在看看demo2" class="headerlink" title="现在看看demo2"></a>现在看看demo2</h5><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">local res,err = ngx.location.capture(<span class="string">"/redis/hget"</span>,&#123;args=&#123;key=<span class="string">"gray"</span>,mKey=<span class="string">"16218"</span>&#125;&#125;)</span><br><span class="line">local parser = require <span class="string">"redis.parser"</span></span><br><span class="line">local server,type = parser.parse_reply(res.body)</span><br><span class="line"><span class="keyword">if</span> not server then</span><br><span class="line">    server=<span class="string">"default"</span></span><br><span class="line">end</span><br><span class="line">ngx.say(<span class="string">"server is :"</span> .. server)</span><br></pre></td></tr></table></figure>
-<h5 id="demo3"><a href="#demo3" class="headerlink" title="demo3"></a>demo3</h5><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">local res,err = ngx.location.capture(<span class="string">"/redis/hget"</span>,&#123;args=&#123;key=<span class="string">"gray"</span>,mKey=<span class="string">"16218"</span>&#125;&#125;)</span><br><span class="line">local parser = require <span class="string">"redis.parser"</span></span><br><span class="line">local server,type = parser.parse_reply(res.body)</span><br><span class="line"><span class="keyword">if</span> not server then</span><br><span class="line">    server=<span class="string">"default"</span></span><br><span class="line">end</span><br><span class="line">ngx.target = server</span><br><span class="line"><span class="keyword">return</span></span><br></pre></td></tr></table></figure>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">## /usr/local/openresty/nginx/conf/nginx.conf</span><br><span class="line">## 在http下添加</span><br><span class="line">upstream redis_server&#123;</span><br><span class="line">  server 192.168.4.22:6379;</span><br><span class="line">  keepalive 1024;</span><br><span class="line">&#125;</span><br><span class="line">##并且在woker_processes 下面增加日志</span><br><span class="line">error_log /usr/local/logs/error.log</span><br></pre></td></tr></table></figure>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">## /usr/local/openresty/nginx/conf/nginx.conf</span><br><span class="line">  location /demo2&#123;</span><br><span class="line">    default_type &apos;text/html&apos;;</span><br><span class="line">    content_by_lua_file /usr/local/app/lua/demo2.lua;</span><br><span class="line">  &#125;</span><br><span class="line">  </span><br><span class="line">  location /demo3&#123;</span><br><span class="line">    set $target &apos;&apos;;</span><br><span class="line">    access_by_lua_file /usr/local/app/lua/demo3.lua;</span><br><span class="line">    proxy_pass http://$target;</span><br><span class="line">  &#125;</span><br><span class="line">  </span><br><span class="line">  location /redis/hget&#123;</span><br><span class="line">    internal; #只允许内部调用</span><br><span class="line">    redis2_query hget $arg_key $arg_mKey;</span><br><span class="line">    redis2_pass redis_server;</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure>
-<h6 id="demo2，demo3先看看官方文档怎么写："><a href="#demo2，demo3先看看官方文档怎么写：" class="headerlink" title="demo2，demo3先看看官方文档怎么写："></a>demo2，demo3先看看官方文档怎么写：</h6><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">This module can be served as a non-blocking redis2 client for lua-nginx-module</span><br><span class="line">(but nowadays it is recommended to use the lua-resty-redis library instead, </span><br><span class="line">which is much simpler to use and more efficient most of the time). </span><br><span class="line">##大概意思就是lua对redis的操作更推荐使用lua-resty-redis模块（因为更简单，更高效）</span><br><span class="line">##但是这里只是为了方便演示，使用demo3的写法</span><br></pre></td></tr></table></figure>
-<h6 id="github地址"><a href="#github地址" class="headerlink" title="github地址"></a>github地址</h6><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git clone https://github.com/JMMMM/nginxLua.git</span><br></pre></td></tr></table></figure>
-<h3 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h3><p>Openresty最佳实践 <a href="https://moonbingbing.gitbooks.io/openresty-best-practices/content/" target="_blank" rel="noopener">https://moonbingbing.gitbooks.io/openresty-best-practices/content/</a> <br><br>跟我学OpenResty(Nginx+Lua)<a href="http://jinnianshilongnian.iteye.com/blog/2190344" target="_blank" rel="noopener">http://jinnianshilongnian.iteye.com/blog/2190344</a> <br><br>官方文档 <a href="http://openresty.org/cn/" target="_blank" rel="noopener">http://openresty.org/cn/</a></p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://jmmmm.github.io/blog/2018/06/11/Nginx+Lua对redis二次封装/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="WJM">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/blog/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="^o^ XX00 :)">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/blog/2018/06/11/Nginx+Lua对redis二次封装/" itemprop="url">Nginx+Lua对redis二次封装</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2018-06-11T14:09:15+08:00">
-                2018-06-11
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">In</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/blog/categories/Nginx-Lua研究与学习/" itemprop="url" rel="index">
-                    <span itemprop="name">Nginx+Lua研究与学习</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-             <span id="/blog/2018/06/11/Nginx+Lua对redis二次封装/" class="leancloud_visitors" data-flag-title="Nginx+Lua对redis二次封装">
-               <span class="post-meta-divider">|</span>
-               <span class="post-meta-item-icon">
-                 <i class="fa fa-eye"></i>
-               </span>
-               
-                 <span class="post-meta-item-text">Visitors&#58;</span>
-               
-                 <span class="leancloud-visitors-count"></span>
-             </span>
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h3 id="一、前提"><a href="#一、前提" class="headerlink" title="一、前提"></a>一、前提</h3><h5 id="由于官方还是更推荐我们使用lua-resty-redis模块进行开发，但是开发中我们不能每次调用都写那堆东西，于是尝试写一份redis-pool-utilsredis-iresty-lua"><a href="#由于官方还是更推荐我们使用lua-resty-redis模块进行开发，但是开发中我们不能每次调用都写那堆东西，于是尝试写一份redis-pool-utilsredis-iresty-lua" class="headerlink" title="由于官方还是更推荐我们使用lua-resty-redis模块进行开发，但是开发中我们不能每次调用都写那堆东西，于是尝试写一份redis pool utilsredis_iresty.lua"></a>由于官方还是更推荐我们使用lua-resty-redis模块进行开发，但是开发中我们不能每次调用都写那堆东西，于是尝试写一份redis pool utils<br>redis_iresty.lua</h5><figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">local</span> redis = <span class="built_in">require</span> <span class="string">"resty.redis"</span></span><br><span class="line"><span class="keyword">local</span> redis_pool = &#123;&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">redis_pool:get_connect</span><span class="params">()</span></span></span><br><span class="line">    <span class="keyword">local</span> client,err = redis:new()</span><br><span class="line">    <span class="keyword">if</span> <span class="keyword">not</span> client <span class="keyword">then</span></span><br><span class="line">        <span class="keyword">return</span> <span class="literal">false</span>,<span class="string">"redis.socket_failed:"</span> .. (err <span class="keyword">or</span> <span class="string">"nil"</span>)</span><br><span class="line">    <span class="keyword">end</span></span><br><span class="line">    client:set_timeout(<span class="number">5000</span>)</span><br><span class="line">    <span class="keyword">local</span> result,msg = client:connect(<span class="string">"192.168.4.89"</span>,<span class="string">"6379"</span>)</span><br><span class="line">    <span class="keyword">if</span> <span class="keyword">not</span> result <span class="keyword">then</span></span><br><span class="line">        <span class="keyword">return</span> <span class="literal">false</span>,msg</span><br><span class="line">    <span class="keyword">end</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="literal">true</span>,client</span><br><span class="line"><span class="keyword">end</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">redis_pool:close</span><span class="params">(client)</span></span></span><br><span class="line">    <span class="keyword">if</span> <span class="keyword">not</span> client <span class="keyword">then</span></span><br><span class="line">        <span class="keyword">return</span></span><br><span class="line">    <span class="keyword">end</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">local</span> pool_max_idle_time = <span class="number">1000</span></span><br><span class="line">    <span class="keyword">local</span> pool_size =<span class="number">10</span></span><br><span class="line">    <span class="keyword">local</span> ok,err = client.set_keepalive(pool_max_idle_time,pool_size)</span><br><span class="line">    <span class="keyword">if</span> <span class="keyword">not</span> ok <span class="keyword">then</span></span><br><span class="line">        ngx.say(<span class="string">"set keepalive error:"</span>,err)</span><br><span class="line">     <span class="keyword">end</span></span><br><span class="line"><span class="keyword">end</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">return</span> redis_pool</span><br></pre></td></tr></table></figure>
           
         
       
