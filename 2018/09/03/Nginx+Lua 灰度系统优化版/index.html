@@ -86,7 +86,7 @@
 <meta property="og:site_name" content="^o^ XX00 :)">
 <meta property="og:description" content="###一、前情提要：Nginx+Lua搭建灰度系统    这个方案使用的是Nginx+Lua+redis的方式动态配置反向代理，实现灰度系统流量的切换；但是这种做法会让每次请求都经过redis，速度影响暂且不说，当redis出现故障时，会直接影响到生产环境的登陆，于是优化很有必要。 ###二、如何改进？    目前的问题是：    1、每次请求都经一次redis，应该尽量减少redis的访问次数；">
 <meta property="og:locale" content="default">
-<meta property="og:updated_time" content="2018-09-04T02:30:06.840Z">
+<meta property="og:updated_time" content="2018-09-04T02:31:14.754Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Nginx+Lua灰度系统优化版">
 <meta name="twitter:description" content="###一、前情提要：Nginx+Lua搭建灰度系统    这个方案使用的是Nginx+Lua+redis的方式动态配置反向代理，实现灰度系统流量的切换；但是这种做法会让每次请求都经过redis，速度影响暂且不说，当redis出现故障时，会直接影响到生产环境的登陆，于是优化很有必要。 ###二、如何改进？    目前的问题是：    1、每次请求都经一次redis，应该尽量减少redis的访问次数；">
@@ -392,13 +392,8 @@
 <p>###三、解决方案：</p>
 <p>####1.通过cookies代替redis<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">#新增一个gray.conf 配置如下</span><br><span class="line">location /&#123;</span><br><span class="line">     default_type &apos;text/html&apos;;</span><br><span class="line">     content_by_lua &apos;ngx.say(ngx.var.cookie_environment)&apos;;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
 <figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//打开浏览器console,设置cookies，命令行curl http//yourip:yourport/查看返回结果；</span></span><br><span class="line"><span class="built_in">document</span>.cookie=<span class="string">"environment=product"</span>;</span><br><span class="line"><span class="built_in">document</span>.cookie=<span class="string">"environment=gray"</span>;</span><br></pre></td></tr></table></figure>
-<div id="flowchart-0" class="flow-chart"></div>
-
-<p><code>`</code>text</p>
-<p>#如上图所示，在oauth-server登录时可以设置cookies，以后在nginx层就能直接解析cookies达到灰度、生产相互切换的目的。</p>
-<p>#oauth-server的逻辑：</p>
-<p>#1、灰度名单，每次check session的时候都判断是否在灰度名单中，不在就移除或灰度的cookies；</p>
-<p>#2、加密灰度的cookies，保证客户端不能随意修改；<br><code>`</code><script src="https://cdnjs.cloudflare.com/ajax/libs/raphael/2.2.7/raphael.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/flowchart/1.6.5/flowchart.min.js"></script><textarea id="flowchart-0-code" style="display: none">st=>start: Nginx
+<p><div id="flowchart-0" class="flow-chart"></div><br><code>`</code>text</p>
+<p>#新增一个gray.conf 配置如下<br>如上图所示，在oauth-server登录时可以设置cookies，以后在nginx层就能直接解析cookies达到灰度、生产相互切换的目的。<br>oauth-server的逻辑：<br>1、灰度名单，每次check session的时候都判断是否在灰度名单中，不在就移除或灰度的cookies；<br>2、加密灰度的cookies，保证客户端不能随意修改；<br><code>`</code><script src="https://cdnjs.cloudflare.com/ajax/libs/raphael/2.2.7/raphael.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/flowchart/1.6.5/flowchart.min.js"></script><textarea id="flowchart-0-code" style="display: none">st=>start: Nginx
 e=>end: 结束
 op2=>operation: 生产
 op1=>operation: 灰度
