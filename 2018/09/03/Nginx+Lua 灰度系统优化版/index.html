@@ -79,16 +79,17 @@
 
 
 
-<meta name="description" content="记录下自己经常忘记的技术">
-<meta property="og:type" content="website">
-<meta property="og:title" content="^o^ XX00 :)">
-<meta property="og:url" content="http://jmmmm.github.io/categories/Nginx-Lua研究与学习/index.html">
+<meta name="description" content="###一、前情提要：Nginx+Lua搭建灰度系统    这个方案使用的是Nginx+Lua+redis的方式动态配置反向代理，实现灰度系统流量的切换；但是这种做法会让每次请求都经过redis，速度影响暂且不说，当redis出现故障时，会直接影响到生产环境的登陆，于是优化很有必要。 ###二、如何改进？    目前的问题是：    1、每次请求都经一次redis，应该尽量减少redis的访问次数；">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Nginx+Lua灰度系统优化版">
+<meta property="og:url" content="http://jmmmm.github.io/2018/09/03/Nginx+Lua 灰度系统优化版/index.html">
 <meta property="og:site_name" content="^o^ XX00 :)">
-<meta property="og:description" content="记录下自己经常忘记的技术">
+<meta property="og:description" content="###一、前情提要：Nginx+Lua搭建灰度系统    这个方案使用的是Nginx+Lua+redis的方式动态配置反向代理，实现灰度系统流量的切换；但是这种做法会让每次请求都经过redis，速度影响暂且不说，当redis出现故障时，会直接影响到生产环境的登陆，于是优化很有必要。 ###二、如何改进？    目前的问题是：    1、每次请求都经一次redis，应该尽量减少redis的访问次数；">
 <meta property="og:locale" content="default">
+<meta property="og:updated_time" content="2018-09-04T02:20:05.582Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="^o^ XX00 :)">
-<meta name="twitter:description" content="记录下自己经常忘记的技术">
+<meta name="twitter:title" content="Nginx+Lua灰度系统优化版">
+<meta name="twitter:description" content="###一、前情提要：Nginx+Lua搭建灰度系统    这个方案使用的是Nginx+Lua+redis的方式动态配置反向代理，实现灰度系统流量的切换；但是这种做法会让每次请求都经过redis，速度影响暂且不说，当redis出现故障时，会直接影响到生产环境的登陆，于是优化很有必要。 ###二、如何改进？    目前的问题是：    1、每次请求都经一次redis，应该尽量减少redis的访问次数；">
 
 
 
@@ -118,13 +119,13 @@
 
 
 
-  <link rel="canonical" href="http://jmmmm.github.io/categories/Nginx-Lua研究与学习/"/>
+  <link rel="canonical" href="http://jmmmm.github.io/2018/09/03/Nginx+Lua 灰度系统优化版/"/>
 
 
 
 
 
-  <title>Category: Nginx+Lua研究与学习 | ^o^ XX00 :)</title>
+  <title>Nginx+Lua灰度系统优化版 | ^o^ XX00 :)</title>
   
 
 
@@ -143,7 +144,7 @@
     
   
 
-  <div class="container sidebar-position-left ">
+  <div class="container sidebar-position-left page-post-detail">
     <div class="headband"></div>
 
     <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
@@ -267,167 +268,199 @@
           <div id="content" class="content">
             
 
+  <div id="posts" class="posts-expand">
+    
+
+  
+
   
   
   
-  <div class="post-block category">
-
-    <div id="posts" class="posts-collapse">
-      <div class="collection-title">
-        <h1>Nginx+Lua研究与学习<small>Category</small>
-        </h1>
-      </div>
-
-      
-        
 
   <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://jmmmm.github.io/blog/2018/09/03/Nginx+Lua 灰度系统优化版/">
 
-      <h2 class="post-title">
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="WJM">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/blog/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="^o^ XX00 :)">
+    </span>
+
+    
+      <header class="post-header">
+
         
-            <a class="post-title-link" href="/blog/2018/09/03/Nginx+Lua 灰度系统优化版/" itemprop="url">
-              
-                <span itemprop="name">Nginx+Lua灰度系统优化版</span>
-              
-            </a>
         
-      </h2>
+          <h1 class="post-title" itemprop="name headline">Nginx+Lua灰度系统优化版</h1>
+        
 
-      <div class="post-meta">
-        <time class="post-time" itemprop="dateCreated"
-              datetime="2018-09-03T14:09:15+08:00"
-              content="2018-09-03" >
-          09-03
-        </time>
-      </div>
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2018-09-03T14:09:15+08:00">
+                2018-09-03
+              </time>
+            
 
-    </header>
-  </article>
+            
 
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/Nginx-Lua研究与学习/" itemprop="url" rel="index">
+                    <span itemprop="name">Nginx+Lua研究与学习</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+             <span id="/blog/2018/09/03/Nginx+Lua 灰度系统优化版/" class="leancloud_visitors" data-flag-title="Nginx+Lua灰度系统优化版">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="post-meta-item-text">Visitors&#58;</span>
+               
+                 <span class="leancloud-visitors-count"></span>
+             </span>
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-file-o"></i> 浏览
+            <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>次
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
 
       
-        
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <h2 class="post-title">
-        
-            <a class="post-title-link" href="/blog/2018/07/10/Nginx+Lua websocket的应用/" itemprop="url">
-              
-                <span itemprop="name">Nginx+Lua websocket的应用</span>
-              
-            </a>
-        
-      </h2>
-
-      <div class="post-meta">
-        <time class="post-time" itemprop="dateCreated"
-              datetime="2018-07-10T11:12:00+08:00"
-              content="2018-07-10" >
-          07-10
-        </time>
-      </div>
-
-    </header>
-  </article>
-
+      
 
       
-        
+        <p>###一、前情提要：<a href="https://jmmmm.github.io/blog/2018/07/09/Nginx+Lua%E6%90%AD%E5%BB%BA%E7%81%B0%E5%BA%A6%E7%B3%BB%E7%BB%9F/">Nginx+Lua搭建灰度系统</a><br>    这个方案使用的是Nginx+Lua+redis的方式动态配置反向代理，实现灰度系统流量的切换；<br>但是这种做法会让每次请求都经过redis，速度影响暂且不说，当redis出现故障时，会直接影响到生产环境的登陆，于是优化很有必要。</p>
+<p>###二、如何改进？<br>    目前的问题是：<br>    1、每次请求都经一次redis，应该尽量减少redis的访问次数；<br>    2、redis挂了以后，应该不影响nginx的正常使用；<br>    3、如何通过配置让指定的用户进入灰度系统；</p>
+<p>###三、解决方案：</p>
+<p>####1.通过cookies代替redis<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">#新增一个gray.conf 配置如下</span><br><span class="line">location /&#123;</span><br><span class="line">     default_type &apos;text/html&apos;;</span><br><span class="line">     content_by_lua &apos;ngx.say(ngx.var.cookie_environment)&apos;;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//打开浏览器console,设置cookies，命令行curl http//yourip:yourport/查看返回结果；</span></span><br><span class="line"><span class="built_in">document</span>.cookie=<span class="string">"environment=product"</span>;</span><br><span class="line"><span class="built_in">document</span>.cookie=<span class="string">"environment=gray"</span>;</span><br></pre></td></tr></table></figure>
+<div id="flowchart-0" class="flow-chart"></div>
 
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
+<p><code>text
+如上图所示，在oauth-server登录时可以设置cookies，以后在nginx层就能直接解析cookies达到灰度、生产相互切换的目的。
+oauth-server的逻辑：
+1、灰度名单，每次check session的时候都判断是否在灰度名单中，不在就移除或灰度的cookies；
+2、加密灰度的cookies，保证客户端不能随意修改；</code><script src="https://cdnjs.cloudflare.com/ajax/libs/raphael/2.2.7/raphael.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/flowchart/1.6.5/flowchart.min.js"></script><textarea id="flowchart-0-code" style="display: none">st=>start: Nginx
+e=>end: 结束
+op2=>operation: 生产
+op1=>operation: 灰度
+cond=>condition: oauth-server/product?
 
-      <h2 class="post-title">
-        
-            <a class="post-title-link" href="/blog/2018/07/09/Nginx+Lua 实现限流/" itemprop="url">
-              
-                <span itemprop="name">Nginx+Lua实现限流</span>
-              
-            </a>
-        
-      </h2>
-
-      <div class="post-meta">
-        <time class="post-time" itemprop="dateCreated"
-              datetime="2018-07-09T14:09:15+08:00"
-              content="2018-07-09" >
-          07-09
-        </time>
-      </div>
-
-    </header>
-  </article>
-
-
-      
-        
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <h2 class="post-title">
-        
-            <a class="post-title-link" href="/blog/2018/07/09/Nginx+Lua对redis二次封装/" itemprop="url">
-              
-                <span itemprop="name">Nginx+Lua对redis二次封装</span>
-              
-            </a>
-        
-      </h2>
-
-      <div class="post-meta">
-        <time class="post-time" itemprop="dateCreated"
-              datetime="2018-07-09T14:09:15+08:00"
-              content="2018-07-09" >
-          07-09
-        </time>
-      </div>
-
-    </header>
-  </article>
-
-
-      
-        
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <h2 class="post-title">
-        
-            <a class="post-title-link" href="/blog/2018/07/09/Nginx+Lua搭建灰度系统/" itemprop="url">
-              
-                <span itemprop="name">Nginx+Lua搭建灰度系统</span>
-              
-            </a>
-        
-      </h2>
-
-      <div class="post-meta">
-        <time class="post-time" itemprop="dateCreated"
-              datetime="2018-07-09T14:09:15+08:00"
-              content="2018-07-09" >
-          07-09
-        </time>
-      </div>
-
-    </header>
-  </article>
-
+st->cond
+cond->st
+cond(no)->op1
+cond(yes)->op2</textarea><textarea id="flowchart-0-options" style="display: none">{"scale":1,"line-width":2,"line-length":50,"text-margin":10,"font-size":12}</textarea><script>  var code = document.getElementById("flowchart-0-code").value;  var options = JSON.parse(decodeURIComponent(document.getElementById("flowchart-0-options").value));  var diagram = flowchart.parse(code);  diagram.drawSVG("flowchart-0", options);</script></p>
 
       
     </div>
+    
+    
+    
 
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/blog/2018/07/10/Nginx+Lua websocket的应用/" rel="next" title="Nginx+Lua websocket的应用">
+                <i class="fa fa-chevron-left"></i> Nginx+Lua websocket的应用
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
   </div>
   
   
   
+  </article>
 
-  
 
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
 
 
           </div>
@@ -435,6 +468,10 @@
 
 
           
+
+  
+
+
 
         </div>
         
@@ -662,6 +699,10 @@
   
 
   
+  <script type="text/javascript" src="/blog/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/blog/js/src/post-details.js?v=5.1.4"></script>
+
+
 
   
 
