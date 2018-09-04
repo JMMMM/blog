@@ -86,7 +86,7 @@
 <meta property="og:site_name" content="^o^ XX00 :)">
 <meta property="og:description" content="一、前情提要：Nginx+Lua搭建灰度系统这个方案使用的是Nginx+Lua+redis的方式动态配置反向代理，实现灰度系统流量的切换；&amp;lt;br/&amp;gt;但是这种做法会让每次请求都经过redis，速度影响暂且不说，当redis出现故障时，会直接影响到生产环境的登陆，于是优化很有必要。 二、如何改进？目前的问题是： 1、每次请求都经一次redis，应该尽量减少redis的访问次数； 2、red">
 <meta property="og:locale" content="default">
-<meta property="og:updated_time" content="2018-09-04T02:38:10.490Z">
+<meta property="og:updated_time" content="2018-09-04T02:40:22.095Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Nginx+Lua灰度系统优化版">
 <meta name="twitter:description" content="一、前情提要：Nginx+Lua搭建灰度系统这个方案使用的是Nginx+Lua+redis的方式动态配置反向代理，实现灰度系统流量的切换；&amp;lt;br/&amp;gt;但是这种做法会让每次请求都经过redis，速度影响暂且不说，当redis出现故障时，会直接影响到生产环境的登陆，于是优化很有必要。 二、如何改进？目前的问题是： 1、每次请求都经一次redis，应该尽量减少redis的访问次数； 2、red">
@@ -387,12 +387,12 @@
       
 
       
-        <h4 id="一、前情提要：Nginx-Lua搭建灰度系统"><a href="#一、前情提要：Nginx-Lua搭建灰度系统" class="headerlink" title="一、前情提要：Nginx+Lua搭建灰度系统"></a>一、前情提要：<a href="https://jmmmm.github.io/blog/2018/07/09/Nginx+Lua%E6%90%AD%E5%BB%BA%E7%81%B0%E5%BA%A6%E7%B3%BB%E7%BB%9F/">Nginx+Lua搭建灰度系统</a></h4><pre><code>这个方案使用的是Nginx+Lua+redis的方式动态配置反向代理，实现灰度系统流量的切换；&lt;br/&gt;但是这种做法会让每次请求都经过redis，速度影响暂且不说，当redis出现故障时，会直接影响到生产环境的登陆，于是优化很有必要。
-</code></pre><h4 id="二、如何改进？"><a href="#二、如何改进？" class="headerlink" title="二、如何改进？"></a>二、如何改进？</h4><pre><code>目前的问题是：
+        <h5 id="一、前情提要：Nginx-Lua搭建灰度系统"><a href="#一、前情提要：Nginx-Lua搭建灰度系统" class="headerlink" title="一、前情提要：Nginx+Lua搭建灰度系统"></a>一、前情提要：<a href="https://jmmmm.github.io/blog/2018/07/09/Nginx+Lua%E6%90%AD%E5%BB%BA%E7%81%B0%E5%BA%A6%E7%B3%BB%E7%BB%9F/">Nginx+Lua搭建灰度系统</a></h5><pre><code>这个方案使用的是Nginx+Lua+redis的方式动态配置反向代理，实现灰度系统流量的切换；&lt;br/&gt;但是这种做法会让每次请求都经过redis，速度影响暂且不说，当redis出现故障时，会直接影响到生产环境的登陆，于是优化很有必要。
+</code></pre><h5 id="二、如何改进？"><a href="#二、如何改进？" class="headerlink" title="二、如何改进？"></a>二、如何改进？</h5><pre><code>目前的问题是：
 1、每次请求都经一次redis，应该尽量减少redis的访问次数；
 2、redis挂了以后，应该不影响nginx的正常使用；
 3、如何通过配置让指定的用户进入灰度系统；
-</code></pre><h4 id="三、解决方案："><a href="#三、解决方案：" class="headerlink" title="三、解决方案："></a>三、解决方案：</h4><h5 id="1-通过cookies代替redis"><a href="#1-通过cookies代替redis" class="headerlink" title="1.通过cookies代替redis"></a>1.通过cookies代替redis</h5><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">#新增一个gray.conf 配置如下</span><br><span class="line">location /&#123;</span><br><span class="line">     default_type &apos;text/html&apos;;</span><br><span class="line">     content_by_lua &apos;ngx.say(ngx.var.cookie_environment)&apos;;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</code></pre><h6 id="三、解决方案："><a href="#三、解决方案：" class="headerlink" title="三、解决方案："></a>三、解决方案：</h6><p>####### 1.通过cookies代替redis<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">#新增一个gray.conf 配置如下</span><br><span class="line">location /&#123;</span><br><span class="line">     default_type &apos;text/html&apos;;</span><br><span class="line">     content_by_lua &apos;ngx.say(ngx.var.cookie_environment)&apos;;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
 <figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//打开浏览器console,设置cookies，命令行curl http//yourip:yourport/查看返回结果；</span></span><br><span class="line"><span class="built_in">document</span>.cookie=<span class="string">"environment=product"</span>;</span><br><span class="line"><span class="built_in">document</span>.cookie=<span class="string">"environment=gray"</span>;</span><br></pre></td></tr></table></figure>
 <div id="flowchart-0" class="flow-chart"></div>
 
@@ -563,7 +563,7 @@ cond(yes)->op2</textarea><textarea id="flowchart-0-options" style="display: none
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#一、前情提要：Nginx-Lua搭建灰度系统"><span class="nav-number">1.</span> <span class="nav-text">一、前情提要：Nginx+Lua搭建灰度系统</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#二、如何改进？"><span class="nav-number">2.</span> <span class="nav-text">二、如何改进？</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#三、解决方案："><span class="nav-number">3.</span> <span class="nav-text">三、解决方案：</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#1-通过cookies代替redis"><span class="nav-number">3.1.</span> <span class="nav-text">1.通过cookies代替redis</span></a></li></ol></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-5"><a class="nav-link" href="#一、前情提要：Nginx-Lua搭建灰度系统"><span class="nav-number">1.</span> <span class="nav-text">一、前情提要：Nginx+Lua搭建灰度系统</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#二、如何改进？"><span class="nav-number">2.</span> <span class="nav-text">二、如何改进？</span></a><ol class="nav-child"><li class="nav-item nav-level-6"><a class="nav-link" href="#三、解决方案："><span class="nav-number">2.1.</span> <span class="nav-text">三、解决方案：</span></a></li></ol></li></ol></div>
             
 
           </div>
