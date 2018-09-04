@@ -79,17 +79,17 @@
 
 
 
-<meta name="description" content="###前提 #####最近在研究通过spring配置读写分离，翻阅了很多相关文章和spring源码，避免忘记，记录下来 ###一、Spring事务源码分析 #####流程TransactionInterceptor.invoke –&amp;gt; TransactionAspectSupport.invokeWithinTransaction :–&amp;gt;在这边获取connection时，会从Abstr">
+<meta name="description" content="前提最近在研究通过spring配置读写分离，翻阅了很多相关文章和spring源码，避免忘记，记录下来一、Spring事务源码分析流程TransactionInterceptor.invoke –&amp;gt; TransactionAspectSupport.invokeWithinTransaction :–&amp;gt;在这边获取connection时，会从AbstractRoutingDataSourc">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Spring源码-事务与读写分离">
 <meta property="og:url" content="http://jmmmm.github.io/2018/07/09/事务与读写分离/index.html">
 <meta property="og:site_name" content="^o^ XX00 :)">
-<meta property="og:description" content="###前提 #####最近在研究通过spring配置读写分离，翻阅了很多相关文章和spring源码，避免忘记，记录下来 ###一、Spring事务源码分析 #####流程TransactionInterceptor.invoke –&amp;gt; TransactionAspectSupport.invokeWithinTransaction :–&amp;gt;在这边获取connection时，会从Abstr">
+<meta property="og:description" content="前提最近在研究通过spring配置读写分离，翻阅了很多相关文章和spring源码，避免忘记，记录下来一、Spring事务源码分析流程TransactionInterceptor.invoke –&amp;gt; TransactionAspectSupport.invokeWithinTransaction :–&amp;gt;在这边获取connection时，会从AbstractRoutingDataSourc">
 <meta property="og:locale" content="default">
-<meta property="og:updated_time" content="2018-07-24T03:49:17.928Z">
+<meta property="og:updated_time" content="2018-09-04T02:38:50.729Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Spring源码-事务与读写分离">
-<meta name="twitter:description" content="###前提 #####最近在研究通过spring配置读写分离，翻阅了很多相关文章和spring源码，避免忘记，记录下来 ###一、Spring事务源码分析 #####流程TransactionInterceptor.invoke –&amp;gt; TransactionAspectSupport.invokeWithinTransaction :–&amp;gt;在这边获取connection时，会从Abstr">
+<meta name="twitter:description" content="前提最近在研究通过spring配置读写分离，翻阅了很多相关文章和spring源码，避免忘记，记录下来一、Spring事务源码分析流程TransactionInterceptor.invoke –&amp;gt; TransactionAspectSupport.invokeWithinTransaction :–&amp;gt;在这边获取connection时，会从AbstractRoutingDataSourc">
 
 
 
@@ -387,22 +387,12 @@
       
 
       
-        <p>###前提</p>
-<p>#####最近在研究通过spring配置读写分离，翻阅了很多相关文章和spring源码，避免忘记，记录下来</p>
-<p>###一、Spring事务源码分析</p>
-<p>#####流程<br>TransactionInterceptor.invoke –&gt; TransactionAspectSupport.invokeWithinTransaction :<br>–&gt;在这边获取connection时，会从AbstractRoutingDataSource 里面获取，这里会通过determineCurrentLookupKey计算出具体选择哪个库</p>
-<p>#####spring配置读写分离，其实就是动态切换master和slave数据源，对部分查询引用到slave数据库种，从而达到减缓master的压力<br></p>
-<p>#####读写分离核心代码(假设两个数据源master,slave)<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//实现AbstractRoutingDataSource</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MultipleDataSource</span> <span class="keyword">extends</span> <span class="title">AbstractRoutingDataSource</span></span>&#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">protected</span> Object <span class="title">determineCurrentLookupKey</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        Object result = ChooseDataSourceUtils.chooseDataSource();</span><br><span class="line">        Boolean rs = TransactionSynchronizationManager.isCurrentTransactionReadOnly();</span><br><span class="line">        <span class="keyword">return</span> result;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+        <h3 id="前提"><a href="#前提" class="headerlink" title="前提"></a>前提</h3><h5 id="最近在研究通过spring配置读写分离，翻阅了很多相关文章和spring源码，避免忘记，记录下来"><a href="#最近在研究通过spring配置读写分离，翻阅了很多相关文章和spring源码，避免忘记，记录下来" class="headerlink" title="最近在研究通过spring配置读写分离，翻阅了很多相关文章和spring源码，避免忘记，记录下来"></a>最近在研究通过spring配置读写分离，翻阅了很多相关文章和spring源码，避免忘记，记录下来</h5><h3 id="一、Spring事务源码分析"><a href="#一、Spring事务源码分析" class="headerlink" title="一、Spring事务源码分析"></a>一、Spring事务源码分析</h3><h5 id="流程"><a href="#流程" class="headerlink" title="流程"></a>流程</h5><p>TransactionInterceptor.invoke –&gt; TransactionAspectSupport.invokeWithinTransaction :<br>–&gt;在这边获取connection时，会从AbstractRoutingDataSource 里面获取，这里会通过determineCurrentLookupKey计算出具体选择哪个库</p>
+<h5 id="spring配置读写分离，其实就是动态切换master和slave数据源，对部分查询引用到slave数据库种，从而达到减缓master的压力"><a href="#spring配置读写分离，其实就是动态切换master和slave数据源，对部分查询引用到slave数据库种，从而达到减缓master的压力" class="headerlink" title="spring配置读写分离，其实就是动态切换master和slave数据源，对部分查询引用到slave数据库种，从而达到减缓master的压力"></a>spring配置读写分离，其实就是动态切换master和slave数据源，对部分查询引用到slave数据库种，从而达到减缓master的压力<br></h5><h5 id="读写分离核心代码-假设两个数据源master-slave"><a href="#读写分离核心代码-假设两个数据源master-slave" class="headerlink" title="读写分离核心代码(假设两个数据源master,slave)"></a>读写分离核心代码(假设两个数据源master,slave)</h5><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//实现AbstractRoutingDataSource</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MultipleDataSource</span> <span class="keyword">extends</span> <span class="title">AbstractRoutingDataSource</span></span>&#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">protected</span> Object <span class="title">determineCurrentLookupKey</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        Object result = ChooseDataSourceUtils.chooseDataSource();</span><br><span class="line">        Boolean rs = TransactionSynchronizationManager.isCurrentTransactionReadOnly();</span><br><span class="line">        <span class="keyword">return</span> result;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ChooseDataSourceUtils</span> </span>&#123;</span><br><span class="line">    <span class="comment">//通过threadlocal设置当前线程的变量，这里type值主要时master，slave</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> ThreadLocal&lt;String&gt; keyThreadLocal = <span class="keyword">new</span> ThreadLocal&lt;&gt;();</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> String <span class="title">chooseDataSource</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> keyThreadLocal.get();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">setChooseType</span><span class="params">(String type)</span> </span>&#123;</span><br><span class="line">        keyThreadLocal.set(type);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">clean</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        keyThreadLocal.remove();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>###这两块是基本类，研究了一段时间，发现有3种方式能够实现读写分离</p>
-<p>######我们应该能够通过某种标识去指定某个service或者某个方法调用slave库，这个时候可以使用注解</p>
-<p>####方案一、</p>
+<h3 id="这两块是基本类，研究了一段时间，发现有3种方式能够实现读写分离"><a href="#这两块是基本类，研究了一段时间，发现有3种方式能够实现读写分离" class="headerlink" title="这两块是基本类，研究了一段时间，发现有3种方式能够实现读写分离"></a>这两块是基本类，研究了一段时间，发现有3种方式能够实现读写分离</h3><h6 id="我们应该能够通过某种标识去指定某个service或者某个方法调用slave库，这个时候可以使用注解"><a href="#我们应该能够通过某种标识去指定某个service或者某个方法调用slave库，这个时候可以使用注解" class="headerlink" title="我们应该能够通过某种标识去指定某个service或者某个方法调用slave库，这个时候可以使用注解"></a>我们应该能够通过某种标识去指定某个service或者某个方法调用slave库，这个时候可以使用注解</h6><p>####方案一、</p>
 <p>#####通过aop设置，通过配置aop并且指定Order(1)能够在@Transaction注解之前处理，这个时候只需要判断调用方法上是否存在特定注解就可以<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Aspect</span></span><br><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="meta">@Order</span>(<span class="number">1</span>)</span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">AopConfig</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Before</span>(<span class="string">"execution(* com.service..*.*(..))"</span>)</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">before</span><span class="params">(JoinPoint joinPoint)</span></span>&#123;</span><br><span class="line">        String name = joinPoint.getSignature().getName();</span><br><span class="line">        ChooseDataSourceUtils.setChooseType(<span class="string">"master"</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<p>####方案二、</p>
-<p>#####通过LazyConnectionDataSourceProxy达到延迟获取connection的目的，这样能够通过各种aop 实现数据源的切换</p>
-<p>####方案三、</p>
-<p>#####通过继承TransactionManager来实现动态切换，这种方式缺点是不能使用自定义注解去实现，但是入侵会相对较小</p>
-
+<h4 id="方案二、"><a href="#方案二、" class="headerlink" title="方案二、"></a>方案二、</h4><h5 id="通过LazyConnectionDataSourceProxy达到延迟获取connection的目的，这样能够通过各种aop-实现数据源的切换"><a href="#通过LazyConnectionDataSourceProxy达到延迟获取connection的目的，这样能够通过各种aop-实现数据源的切换" class="headerlink" title="通过LazyConnectionDataSourceProxy达到延迟获取connection的目的，这样能够通过各种aop 实现数据源的切换"></a>通过LazyConnectionDataSourceProxy达到延迟获取connection的目的，这样能够通过各种aop 实现数据源的切换</h5><h4 id="方案三、"><a href="#方案三、" class="headerlink" title="方案三、"></a>方案三、</h4><h5 id="通过继承TransactionManager来实现动态切换，这种方式缺点是不能使用自定义注解去实现，但是入侵会相对较小"><a href="#通过继承TransactionManager来实现动态切换，这种方式缺点是不能使用自定义注解去实现，但是入侵会相对较小" class="headerlink" title="通过继承TransactionManager来实现动态切换，这种方式缺点是不能使用自定义注解去实现，但是入侵会相对较小"></a>通过继承TransactionManager来实现动态切换，这种方式缺点是不能使用自定义注解去实现，但是入侵会相对较小</h5>
       
     </div>
     
@@ -490,8 +480,17 @@
       
 
       
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
 
-      <section class="site-overview-wrap sidebar-panel sidebar-panel-active">
+      <section class="site-overview-wrap sidebar-panel">
         <div class="site-overview">
           <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
             
@@ -542,6 +541,22 @@
         </div>
       </section>
 
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#前提"><span class="nav-number">1.</span> <span class="nav-text">前提</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#最近在研究通过spring配置读写分离，翻阅了很多相关文章和spring源码，避免忘记，记录下来"><span class="nav-number">1.0.1.</span> <span class="nav-text">最近在研究通过spring配置读写分离，翻阅了很多相关文章和spring源码，避免忘记，记录下来</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#一、Spring事务源码分析"><span class="nav-number">2.</span> <span class="nav-text">一、Spring事务源码分析</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#流程"><span class="nav-number">2.0.1.</span> <span class="nav-text">流程</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#spring配置读写分离，其实就是动态切换master和slave数据源，对部分查询引用到slave数据库种，从而达到减缓master的压力"><span class="nav-number">2.0.2.</span> <span class="nav-text">spring配置读写分离，其实就是动态切换master和slave数据源，对部分查询引用到slave数据库种，从而达到减缓master的压力</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#读写分离核心代码-假设两个数据源master-slave"><span class="nav-number">2.0.3.</span> <span class="nav-text">读写分离核心代码(假设两个数据源master,slave)</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#这两块是基本类，研究了一段时间，发现有3种方式能够实现读写分离"><span class="nav-number">3.</span> <span class="nav-text">这两块是基本类，研究了一段时间，发现有3种方式能够实现读写分离</span></a><ol class="nav-child"><li class="nav-item nav-level-6"><a class="nav-link" href="#我们应该能够通过某种标识去指定某个service或者某个方法调用slave库，这个时候可以使用注解"><span class="nav-number">3.0.0.1.</span> <span class="nav-text">我们应该能够通过某种标识去指定某个service或者某个方法调用slave库，这个时候可以使用注解</span></a></li></ol></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#方案二、"><span class="nav-number">3.1.</span> <span class="nav-text">方案二、</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#通过LazyConnectionDataSourceProxy达到延迟获取connection的目的，这样能够通过各种aop-实现数据源的切换"><span class="nav-number">3.1.1.</span> <span class="nav-text">通过LazyConnectionDataSourceProxy达到延迟获取connection的目的，这样能够通过各种aop 实现数据源的切换</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#方案三、"><span class="nav-number">3.2.</span> <span class="nav-text">方案三、</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#通过继承TransactionManager来实现动态切换，这种方式缺点是不能使用自定义注解去实现，但是入侵会相对较小"><span class="nav-number">3.2.1.</span> <span class="nav-text">通过继承TransactionManager来实现动态切换，这种方式缺点是不能使用自定义注解去实现，但是入侵会相对较小</span></a></li></ol></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
       
 
       
