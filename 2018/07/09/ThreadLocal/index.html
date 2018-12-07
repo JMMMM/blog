@@ -81,14 +81,14 @@
 
 <meta name="description" content="###一、Threadlocal的应用场景 使每个线程保存着某个对象的副本，每个线程相互独立地维护这个副本，并且确保只有当前线程能调用和修改这个副本，副本之间互不影响。 #####举个例子： 在spring的一个service业务层中，我们经常需要通过调用dao层去对数据库进行持久化处理，一个service可能需要调用多个dao方法做处理，所有的数据库处理都必须确保在一个Transaction中执">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Nginx+Lua实现限流">
-<meta property="og:url" content="http://jmmmm.github.io/2018/07/09/Nginx+Lua 实现限流/index.html">
+<meta property="og:title" content="深入理解ThreadLocal">
+<meta property="og:url" content="http://jmmmm.github.io/2018/07/09/ThreadLocal/index.html">
 <meta property="og:site_name" content="^o^ XX00 :)">
 <meta property="og:description" content="###一、Threadlocal的应用场景 使每个线程保存着某个对象的副本，每个线程相互独立地维护这个副本，并且确保只有当前线程能调用和修改这个副本，副本之间互不影响。 #####举个例子： 在spring的一个service业务层中，我们经常需要通过调用dao层去对数据库进行持久化处理，一个service可能需要调用多个dao方法做处理，所有的数据库处理都必须确保在一个Transaction中执">
 <meta property="og:locale" content="default">
-<meta property="og:updated_time" content="2018-12-07T07:50:28.168Z">
+<meta property="og:updated_time" content="2018-12-07T07:51:34.982Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Nginx+Lua实现限流">
+<meta name="twitter:title" content="深入理解ThreadLocal">
 <meta name="twitter:description" content="###一、Threadlocal的应用场景 使每个线程保存着某个对象的副本，每个线程相互独立地维护这个副本，并且确保只有当前线程能调用和修改这个副本，副本之间互不影响。 #####举个例子： 在spring的一个service业务层中，我们经常需要通过调用dao层去对数据库进行持久化处理，一个service可能需要调用多个dao方法做处理，所有的数据库处理都必须确保在一个Transaction中执">
 
 
@@ -119,13 +119,13 @@
 
 
 
-  <link rel="canonical" href="http://jmmmm.github.io/2018/07/09/Nginx+Lua 实现限流/"/>
+  <link rel="canonical" href="http://jmmmm.github.io/2018/07/09/ThreadLocal/"/>
 
 
 
 
 
-  <title>Nginx+Lua实现限流 | ^o^ XX00 :)</title>
+  <title>深入理解ThreadLocal | ^o^ XX00 :)</title>
   
 
 
@@ -282,7 +282,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://jmmmm.github.io/blog/2018/07/09/Nginx+Lua 实现限流/">
+    <link itemprop="mainEntityOfPage" href="http://jmmmm.github.io/blog/2018/07/09/ThreadLocal/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="WJM">
@@ -299,7 +299,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">Nginx+Lua实现限流</h1>
+          <h1 class="post-title" itemprop="name headline">深入理解ThreadLocal</h1>
         
 
         <div class="post-meta">
@@ -334,8 +334,8 @@
               
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/blog/categories/Nginx-Lua研究与学习/" itemprop="url" rel="index">
-                    <span itemprop="name">Nginx+Lua研究与学习</span>
+                  <a href="/blog/categories/JVM源码/" itemprop="url" rel="index">
+                    <span itemprop="name">JVM源码</span>
                   </a>
                 </span>
 
@@ -351,7 +351,7 @@
 
           
           
-             <span id="/blog/2018/07/09/Nginx+Lua 实现限流/" class="leancloud_visitors" data-flag-title="Nginx+Lua实现限流">
+             <span id="/blog/2018/07/09/ThreadLocal/" class="leancloud_visitors" data-flag-title="深入理解ThreadLocal">
                <span class="post-meta-divider">|</span>
                <span class="post-meta-item-icon">
                  <i class="fa fa-eye"></i>
@@ -434,8 +434,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/blog/2018/07/09/Nginx+Lua对redis二次封装/" rel="next" title="Nginx+Lua对redis二次封装">
-                <i class="fa fa-chevron-left"></i> Nginx+Lua对redis二次封装
+              <a href="/blog/2018/06/11/Apollo搭建/" rel="next" title="Apollo搭建">
+                <i class="fa fa-chevron-left"></i> Apollo搭建
               </a>
             
           </div>
@@ -444,8 +444,8 @@
 
           <div class="post-nav-prev post-nav-item">
             
-              <a href="/blog/2018/07/10/Nginx+Lua websocket的应用/" rel="prev" title="Nginx+Lua websocket的应用">
-                Nginx+Lua websocket的应用 <i class="fa fa-chevron-right"></i>
+              <a href="/blog/2018/07/09/事务与读写分离/" rel="prev" title="Spring源码-事务与读写分离">
+                Spring源码-事务与读写分离 <i class="fa fa-chevron-right"></i>
               </a>
             
           </div>
@@ -525,7 +525,7 @@
               
               <div class="site-state-item site-state-categories">
                 <a href="/blog/categories/index.html">
-                  <span class="site-state-item-count">3</span>
+                  <span class="site-state-item-count">4</span>
                   <span class="site-state-item-name">categories</span>
                 </a>
               </div>
