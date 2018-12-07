@@ -706,8 +706,9 @@
       
         
           
-          
-          
+          ###一、Threadlocal的应用场景 使每个线程保存着某个对象的副本，每个线程相互独立地维护这个副本，并且确保只有当前线程能调用和修改这个副本，副本之间互不影响。
+#####举个例子： 在spring的一个service业务层中，我们经常需要通过调用dao层去对数据库进行持久化处理，一个ser
+          ...
           <!--noindex-->
           <div class="post-button text-center">
             <a class="btn" href="/blog/2018/07/09/Nginx+Lua 实现限流/#more" rel="contents">
